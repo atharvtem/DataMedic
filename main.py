@@ -1,6 +1,6 @@
-def main():
-    print("Hello from datamedic!")
+import asyncio
+from datamedic.app import main
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

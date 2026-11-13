@@ -1,0 +1,91 @@
+services:
+  loader:
+    profiles: [data]
+    build: .
+    command: [python, -m, datamedic.load_olist, --replace, --incident]
+    environment:
+      PGHOST: postgres-db
+      PGDATABASE: olist_db
+      PGUSER: datamedic_admin
+      PGPASSWORD: ${POSTGRES_PASSWORD:?Copy .env.example to .env}
+    volumes:
+      - ./data/olist:/data:ro
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+    networks: [backend]
+  postgres-db:
+    build:
+      context: .
+      dockerfile: docker/postgres.Dockerfile
+    environment:
+      POSTGRES_DB: olist_db
+      POSTGRES_USER: datamedic_admin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Copy .env.example to .env}
+      MCP_DB_PASSWORD: ${MCP_DB_PASSWORD:?Copy .env.example to .env}
+      MCP_OPS_PASSWORD: ${MCP_OPS_PASSWORD:-local-ops-reader-only}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U datamedic_admin -d olist_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks: [backend]
+  mcp-postgres:
+    build: .
+    command: [python, -m, datamedic.postgres_server]
+    environment:
+      PGHOST: postgres-db
+      PGDATABASE: olist_db
+      PGUSER: datamedic_reader
+      PGPASSWORD: ${MCP_DB_PASSWORD:?Copy .env.example to .env}
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+    healthcheck:
+      test: [CMD, python, -m, datamedic.probe, "http://localhost:8001/mcp"]
+      interval: 10s
+      timeout: 8s
+      retries: 10
+      start_period: 10s
+    networks: [backend]
+  mcp-ops:
+    build: .
+    command: [python, -m, datamedic.ops_server]
+    environment:
+      PGHOST: postgres-db
+      PGDATABASE: olist_db
+      PGUSER: datamedic_ops_reader
+      PGPASSWORD: ${MCP_OPS_PASSWORD:-local-ops-reader-only}
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+    healthcheck:
+      test: [CMD, python, -m, datamedic.probe, "http://localhost:8002/mcp"]
+      interval: 10s
+      timeout: 8s
+      retries: 10
+      start_period: 10s
+    networks: [backend]
+  datamedic-app:
+    build: .
+    environment:
+      MCP_DATABASE_URL: http://mcp-postgres:8001/mcp
+      MCP_OPS_URL: http://mcp-ops:8002/mcp
+    depends_on:
+      mcp-postgres:
+        condition: service_healthy
+      mcp-ops:
+        condition: service_healthy
+    healthcheck:
+      test: [CMD, python, -m, datamedic.probe, "http://mcp-postgres:8001/mcp", "http://mcp-ops:8002/mcp"]
+      interval: 30s
+      timeout: 8s
+      retries: 3
+    networks: [backend]
+networks:
+  backend:
+    internal: true
+volumes:
+  postgres_data:
