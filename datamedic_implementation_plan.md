@@ -2,6 +2,39 @@
 
 This is the working build sequence for DataMedic. It turns the project requirements in [datamedic_requirements.md](datamedic_requirements.md) into ordered, reviewable steps. The plan has no fixed dates. Complete each phase's exit criteria before moving to the next; adjust the plan when implementation evidence changes a requirement.
 
+## User scope update — November 14, 2026
+
+The primary workspace now accepts user-uploaded tables. Discover columns, accept
+suggested or custom checks, let the agent choose checks and chart fields, explain
+measured findings, and suggest fixes. **Never modify user datasets.** Replace
+“what a human should do next” with “What should you do next?”. Olist remains a
+separate example, not the general product. CSV/flat JSON upload, metadata-based
+planning and bounded local execution are implemented; richer file formats,
+more complex queries and iterative cross-dataset investigation remain future
+work. See [upload workspace](docs/upload-workspace.md).
+
+## Honest completion review — uploaded-file workspace
+
+**The original investigation goal is not complete.** The upload UI uses one AI
+planning call followed by validated local operations. It does not yet run the
+MCP/LangGraph evidence-and-follow-up loop used by the separate Olist demo.
+
+- Implemented and regression-tested: discovered file/column metadata, read-only
+  checks, independent failure handling, measured findings tables, and histograms,
+  category charts, time series, scatter plots and box plots. All chart types
+  compose with colour grouping and filters; no dataset-specific field names.
+- Still needed: evidence-driven follow-up planning and recovery from invalid
+  plans, with bounded steps and transparent progress.
+- Still needed: explanations and prioritized fix suggestions grounded in the
+  actual findings, rather than mainly generic advice per check type.
+- Still needed: richer query composition (multiple filters, derived metrics,
+  joins) and broader file support. These are not supported merely because the
+  input box accepts free text.
+- Acceptance gate: exercise unseen datasets with renamed/reordered fields,
+  multi-table questions and varied visualization requests using live providers;
+  validate calculations, chart specifications, honest unsupported cases and
+  unchanged source data. Unit/UI fixtures alone do not establish this gate.
+
 ## Product goals to preserve
 
 - **Docker Compose is part of the deliverable from the start.** The database, MCP server, and application run as services in a reproducible local stack.
@@ -91,6 +124,15 @@ checks passed; see [operations contract](docs/operations-mcp.md).
 
 ## Phase 5 — Implement the LangGraph investigation loop
 
+**Status:** Local deterministic path implemented and verified against both MCP
+servers. Typed graph state, competing hypotheses, validated requests, budget
+and retry limits, evidence traces, and abstention paths are operational. Live
+incident uses 8/12 points; control and ambiguity replay cases pass. See
+[investigation contract](docs/investigation.md). Groq/Gemini adapters now propose hypotheses and tool requests; live validation
+completed with Groq (8/12 points); Gemini full flow remains pending after HTTP 503. The default planner is a scenario-specific development fixture,
+not a general natural-language agent. Phase 6 LLM baseline comparisons require
+provider/model selection and implementation before measured comparisons.
+
 1. Define typed state for the alert, permitted schema summary, hypotheses, evidence, tool history, remaining budget, verdict, and report.
 2. Define structured outputs for hypotheses, tool requests, evidence updates, and the final report. Validate model output before changing state or calling a tool.
 3. Generate a small set of distinct, testable hypotheses before expensive investigation. Do not require hypotheses to be mutually exclusive if the scenario allows multiple causes.
@@ -103,6 +145,11 @@ checks passed; see [operations contract](docs/operations-mcp.md).
 
 ## Phase 6 — Create the Olist benchmark and baselines
 
+**Status:** Development evidence-replay runner added (seven variants, three repeats).
+This is regression coverage, not the required reviewed multi-category benchmark.
+No-tool and unbudgeted LLM comparisons, held-out cases, and live provider results
+remain pending. See [provider and regression setup](docs/providers.md).
+
 1. Create a small reviewed set of Olist cases covering the supported labels, including at least one genuinely ambiguous case.
 2. For each case, store a reproducible alert, baseline data reference, injection procedure, expected label, evidence needed, and acceptable abstention behavior.
 3. Keep prompt-development cases separate from held-out evaluation cases where feasible. Version the generator, case manifest, and ground truth.
@@ -114,6 +161,12 @@ checks passed; see [operations contract](docs/operations-mcp.md).
 **Exit criteria:** The benchmark can be regenerated and run reproducibly; ground truth is independently inspectable; baseline and DataMedic results can be compared without claiming unmeasured gains.
 
 ## Phase 7 — Build the reviewable demo
+
+**Status:** Streamlit interface implemented at localhost:8501 with alert entry,
+planner/budget selection, hypothesis snapshots, tool parameters/results, elapsed
+time, verdict, follow-up, and JSON download. Results render after completion;
+live streaming is implemented. Built alongside provider work while live API
+validation proceeded.
 
 1. Add a Streamlit interface to enter/select an alert and start an investigation.
 2. Display the hypothesis list, state changes, evidence, MCP tool calls, budget points, elapsed time, and final verdict.

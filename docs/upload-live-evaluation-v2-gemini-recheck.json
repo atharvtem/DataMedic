@@ -1,0 +1,40 @@
+{
+  "suite": "upload-live-development-v2",
+  "limitations": "Synthetic development smoke tests, not a held-out benchmark or proof of general investigation quality. Token usage is reported; monetary cost is not estimated.",
+  "passed": 1,
+  "total": 1,
+  "runs": [
+    {
+      "provider": "gemini",
+      "case": "ambiguous-rate",
+      "passed": true,
+      "checks": {
+        "read_only": true,
+        "bounded": true,
+        "no_failed_operations": true,
+        "normal_stop": true,
+        "missing_definition_reported": true,
+        "no_substitute_calculation": true
+      },
+      "elapsed_seconds": 22.57,
+      "steps": 0,
+      "planning_calls": 1,
+      "tokens": 2209,
+      "models": [
+        {
+          "requested_model": "gemini-3.5-flash",
+          "served_model": "gemini-3.6-flash",
+          "tokens": 2209
+        }
+      ],
+      "provider_errors": [],
+      "planning_errors": [],
+      "stop_reason": "The planner selected no further supported steps. Review the measured results and any uncovered parts below.",
+      "unsupported": [
+        "Conversion rate definition, including qualifying conversion events and denominator"
+      ],
+      "explanation": "Calculating conversion rate requires explicit definitions for qualifying conversion events and the denominator. No checks or charts will be generated until these definitions are provided.",
+      "history": []
+    }
+  ]
+}

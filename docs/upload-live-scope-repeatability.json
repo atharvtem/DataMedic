@@ -1,0 +1,621 @@
+{
+  "suite": "upload-live-development-v3",
+  "limitations": "Synthetic development smoke tests, not a held-out benchmark or proof of general investigation quality. Token usage is reported; monetary cost is not estimated.",
+  "repeats": 2,
+  "passed": 6,
+  "total": 12,
+  "runs": [
+    {
+      "provider": "groq",
+      "case": "malformed-readings",
+      "repeat": 1,
+      "passed": true,
+      "checks": {
+        "read_only": true,
+        "bounded": true,
+        "no_failed_operations": true,
+        "normal_stop": true,
+        "missing": true,
+        "invalid_number": true,
+        "histogram": true,
+        "requested_scope": true
+      },
+      "elapsed_seconds": 3.68,
+      "steps": 3,
+      "planning_calls": 2,
+      "tokens": 4826,
+      "models": [
+        {
+          "requested_model": "openai/gpt-oss-120b",
+          "served_model": "openai/gpt-oss-120b",
+          "tokens": 2261
+        },
+        {
+          "requested_model": "openai/gpt-oss-120b",
+          "served_model": "openai/gpt-oss-120b",
+          "tokens": 2565
+        }
+      ],
+      "provider_errors": [],
+      "planning_errors": [],
+      "stop_reason": "The planner selected no further supported steps. Review the measured results and any uncovered parts below.",
+      "unsupported": [],
+      "explanation": "Create checks to identify missing readings and values that cannot be parsed as numbers, then produce a histogram of the reading values.",
+      "history": [
+        {
+          "step": 1,
+          "round": 1,
+          "kind": "check",
+          "operation": {
+            "table": "sensor.csv",
+            "kind": "missing",
+            "columns": [
+              "reading"
+            ],
+            "reference_table": null,
+            "reference_column": null,
+            "reason": "Find rows where the reading field is absent."
+          },
+          "status": "completed"
+        },
+        {
+          "step": 2,
+          "round": 1,
+          "kind": "check",
+          "operation": {
+            "table": "sensor.csv",
+            "kind": "invalid_number",
+            "columns": [
+              "reading"
+            ],
+            "reference_table": null,
+            "reference_column": null,
+            "reason": "Detect reading entries that cannot be converted to numeric values."
+          },
+          "status": "completed"
+        },
+        {
+          "step": 3,
+          "round": 1,
+          "kind": "chart",
+          "operation": {
+            "table": "sensor.csv",
+            "kind": "histogram",
+            "x": "reading",
+            "y": null,
+            "aggregation": "count",
+            "normalization": "none",
+            "period": "D",
+            "start": null,
+            "end": null,
+            "color_by": null,
+            "filter_column": null,
+            "filter_operator": null,
+            "filter_value": null,
+            "filter_upper": null,
+            "reason": "Show the distribution of reading values."
+          },
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "provider": "groq",
+      "case": "conditional-dirty",
+      "repeat": 1,
+      "passed": true,
+      "checks": {
+        "read_only": true,
+        "bounded": true,
+        "no_failed_operations": true,
+        "normal_stop": true,
+        "summary_measurements": true,
+        "conditional_choice": true,
+        "requested_scope": true,
+        "follow_up_after_evidence": true
+      },
+      "elapsed_seconds": 27.04,
+      "steps": 2,
+      "planning_calls": 3,
+      "tokens": 6731,
+      "models": [
+        {
+          "requested_model": "openai/gpt-oss-120b",
+          "served_model": "openai/gpt-oss-120b",
+          "tokens": 2123
+        },
+        {
+          "requested_model": "openai/gpt-oss-120b",
+          "served_model": "openai/gpt-oss-120b",
+          "tokens": 2276
+        },
+        {
+          "requested_model": "openai/gpt-oss-120b",
+          "served_model": "openai/gpt-oss-120b",
+          "tokens": 2332
+        }
+      ],
+      "provider_errors": [],
+      "planning_errors": [],
+      "stop_reason": "The planner selected no further supported steps. Review the measured results and any uncovered parts below.",
+      "unsupported": [],
+      "explanation": "Run a numeric summary on the 'mass' column of batches.csv to assess its values. If the summary reveals unreadable numbers, the next step would be to run an invalid_number check on the same column.",
+      "history": [
+        {
+          "step": 1,
+          "round": 1,
+          "kind": "check",
+          "operation": {
+            "table": "batches.csv",
+            "kind": "summary",
+            "columns": [
+              "mass"
+            ],
+            "reference_table": null,
+            "reference_column": null,
+            "reason": "Provide numeric summary of mass before deciding on further validation."
+          },
+          "status": "completed"
+        },
+        {
+          "step": 2,
+          "round": 2,
+          "kind": "check",
+          "operation": {
+            "table": "batches.csv",
+            "kind": "invalid_number",
+            "columns": [
+              "mass"
+            ],
+            "reference_table": null,
+            "reference_column": null,
+            "reason": "Identify rows where mass contains unreadable numeric values after the summary showed unreadable entries."
+          },
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "provider": "groq",
+      "case": "ambiguous-rate",
+      "repeat": 1,
+      "passed": true,
+      "checks": {
+        "read_only": true,
+        "bounded": true,
+        "no_failed_operations": true,
+        "normal_stop": true,
+        "missing_definition_reported": true,
+        "no_substitute_calculation": true
+      },
+      "elapsed_seconds": 13.9,
+      "steps": 0,
+      "planning_calls": 1,
+      "tokens": 2027,
+      "models": [
+        {
+          "requested_model": "openai/gpt-oss-120b",
+          "served_model": "openai/gpt-oss-120b",
+          "tokens": 2027
+        }
+      ],
+      "provider_errors": [],
+      "planning_errors": [],
+      "stop_reason": "The planner selected no further supported steps. Review the measured results and any uncovered parts below.",
+      "unsupported": [
+        "Missing definition of conversion numerator and denominator."
+      ],
+      "explanation": "The request asks for a conversion rate but does not define the qualifying events (numerator) or the denominator (e.g., total visitors, sessions, etc.). Without this definition we cannot calculate a meaningful conversion metric.",
+      "history": []
+    },
+    {
+      "provider": "groq",
+      "case": "malformed-readings",
+      "repeat": 2,
+      "passed": true,
+      "checks": {
+        "read_only": true,
+        "bounded": true,
+        "no_failed_operations": true,
+        "normal_stop": true,
+        "missing": true,
+        "invalid_number": true,
+        "histogram": true,
+        "requested_scope": true
+      },
+      "elapsed_seconds": 36.97,
+      "steps": 3,
+      "planning_calls": 2,
+      "tokens": 4796,
+      "models": [
+        {
+          "requested_model": "openai/gpt-oss-120b",
+          "served_model": "openai/gpt-oss-120b",
+          "tokens": 2272
+        },
+        {
+          "requested_model": "openai/gpt-oss-120b",
+          "served_model": "openai/gpt-oss-120b",
+          "tokens": 2524
+        }
+      ],
+      "provider_errors": [],
+      "planning_errors": [],
+      "stop_reason": "The planner selected no further supported steps. Review the measured results and any uncovered parts below.",
+      "unsupported": [],
+      "explanation": "Create a histogram of the reading values and add data quality checks to identify missing readings and unreadable (non\u2011numeric) readings.",
+      "history": [
+        {
+          "step": 1,
+          "round": 1,
+          "kind": "check",
+          "operation": {
+            "table": "sensor.csv",
+            "kind": "missing",
+            "columns": [
+              "reading"
+            ],
+            "reference_table": null,
+            "reference_column": null,
+            "reason": "Detect rows where the reading value is absent."
+          },
+          "status": "completed"
+        },
+        {
+          "step": 2,
+          "round": 1,
+          "kind": "check",
+          "operation": {
+            "table": "sensor.csv",
+            "kind": "invalid_number",
+            "columns": [
+              "reading"
+            ],
+            "reference_table": null,
+            "reference_column": null,
+            "reason": "Identify readings that cannot be parsed as numbers."
+          },
+          "status": "completed"
+        },
+        {
+          "step": 3,
+          "round": 1,
+          "kind": "chart",
+          "operation": {
+            "table": "sensor.csv",
+            "kind": "histogram",
+            "x": "reading",
+            "y": null,
+            "aggregation": "count",
+            "normalization": "none",
+            "period": "D",
+            "start": null,
+            "end": null,
+            "color_by": null,
+            "filter_column": null,
+            "filter_operator": null,
+            "filter_value": null,
+            "filter_upper": null,
+            "reason": "Visualize the distribution of reading values."
+          },
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "provider": "groq",
+      "case": "conditional-dirty",
+      "repeat": 2,
+      "passed": false,
+      "checks": {
+        "read_only": true,
+        "bounded": true,
+        "no_failed_operations": true,
+        "normal_stop": false,
+        "summary_measurements": false,
+        "conditional_choice": false,
+        "requested_scope": false,
+        "follow_up_after_evidence": false
+      },
+      "elapsed_seconds": 13.36,
+      "steps": 0,
+      "planning_calls": 1,
+      "tokens": 0,
+      "models": [],
+      "provider_errors": [
+        {
+          "provider": "groq",
+          "model": "openai/gpt-oss-120b",
+          "code": "HTTP_429"
+        }
+      ],
+      "planning_errors": [
+        {
+          "round": 1,
+          "code": "HTTP_429"
+        }
+      ],
+      "stop_reason": "Planning failed or timed out. Available results are retained; retry to investigate further.",
+      "unsupported": [],
+      "explanation": "",
+      "history": []
+    },
+    {
+      "provider": "groq",
+      "case": "ambiguous-rate",
+      "repeat": 2,
+      "passed": true,
+      "checks": {
+        "read_only": true,
+        "bounded": true,
+        "no_failed_operations": true,
+        "normal_stop": true,
+        "missing_definition_reported": true,
+        "no_substitute_calculation": true
+      },
+      "elapsed_seconds": 1.03,
+      "steps": 0,
+      "planning_calls": 1,
+      "tokens": 2042,
+      "models": [
+        {
+          "requested_model": "openai/gpt-oss-120b",
+          "served_model": "openai/gpt-oss-120b",
+          "tokens": 2042
+        }
+      ],
+      "provider_errors": [],
+      "planning_errors": [],
+      "stop_reason": "The planner selected no further supported steps. Review the measured results and any uncovered parts below.",
+      "unsupported": [
+        "Missing definition of qualifying conversion events and denominator for the conversion rate calculation."
+      ],
+      "explanation": "The request asks for a conversion rate but does not define which events constitute the conversion (e.g., orders, sign\u2011ups) and what denominator should be used (e.g., visitors, sessions, unique users). Without these definitions we cannot compute a meaningful rate.",
+      "history": []
+    },
+    {
+      "provider": "gemini",
+      "case": "malformed-readings",
+      "repeat": 1,
+      "passed": false,
+      "checks": {
+        "read_only": true,
+        "bounded": true,
+        "no_failed_operations": true,
+        "normal_stop": false,
+        "missing": false,
+        "invalid_number": false,
+        "histogram": false,
+        "requested_scope": false
+      },
+      "elapsed_seconds": 20.47,
+      "steps": 0,
+      "planning_calls": 1,
+      "tokens": 0,
+      "models": [],
+      "provider_errors": [
+        {
+          "provider": "gemini",
+          "model": "gemini-3.5-flash",
+          "code": "HTTP_429"
+        }
+      ],
+      "planning_errors": [
+        {
+          "round": 1,
+          "code": "HTTP_429"
+        }
+      ],
+      "stop_reason": "Planning failed or timed out. Available results are retained; retry to investigate further.",
+      "unsupported": [],
+      "explanation": "",
+      "history": []
+    },
+    {
+      "provider": "gemini",
+      "case": "conditional-dirty",
+      "repeat": 1,
+      "passed": false,
+      "checks": {
+        "read_only": true,
+        "bounded": true,
+        "no_failed_operations": true,
+        "normal_stop": false,
+        "summary_measurements": false,
+        "conditional_choice": false,
+        "requested_scope": false,
+        "follow_up_after_evidence": false
+      },
+      "elapsed_seconds": 20.5,
+      "steps": 0,
+      "planning_calls": 1,
+      "tokens": 0,
+      "models": [],
+      "provider_errors": [
+        {
+          "provider": "gemini",
+          "model": "gemini-3.5-flash",
+          "code": "HTTP_429"
+        }
+      ],
+      "planning_errors": [
+        {
+          "round": 1,
+          "code": "HTTP_429"
+        }
+      ],
+      "stop_reason": "Planning failed or timed out. Available results are retained; retry to investigate further.",
+      "unsupported": [],
+      "explanation": "",
+      "history": []
+    },
+    {
+      "provider": "gemini",
+      "case": "ambiguous-rate",
+      "repeat": 1,
+      "passed": false,
+      "checks": {
+        "read_only": true,
+        "bounded": true,
+        "no_failed_operations": true,
+        "normal_stop": false,
+        "missing_definition_reported": false,
+        "no_substitute_calculation": true
+      },
+      "elapsed_seconds": 20.48,
+      "steps": 0,
+      "planning_calls": 1,
+      "tokens": 0,
+      "models": [],
+      "provider_errors": [
+        {
+          "provider": "gemini",
+          "model": "gemini-3.5-flash",
+          "code": "HTTP_429"
+        }
+      ],
+      "planning_errors": [
+        {
+          "round": 1,
+          "code": "HTTP_429"
+        }
+      ],
+      "stop_reason": "Planning failed or timed out. Available results are retained; retry to investigate further.",
+      "unsupported": [],
+      "explanation": "",
+      "history": []
+    },
+    {
+      "provider": "gemini",
+      "case": "malformed-readings",
+      "repeat": 2,
+      "passed": false,
+      "checks": {
+        "read_only": true,
+        "bounded": true,
+        "no_failed_operations": true,
+        "normal_stop": false,
+        "missing": false,
+        "invalid_number": false,
+        "histogram": false,
+        "requested_scope": false
+      },
+      "elapsed_seconds": 20.48,
+      "steps": 0,
+      "planning_calls": 1,
+      "tokens": 0,
+      "models": [],
+      "provider_errors": [
+        {
+          "provider": "gemini",
+          "model": "gemini-3.5-flash",
+          "code": "HTTP_429"
+        }
+      ],
+      "planning_errors": [
+        {
+          "round": 1,
+          "code": "HTTP_429"
+        }
+      ],
+      "stop_reason": "Planning failed or timed out. Available results are retained; retry to investigate further.",
+      "unsupported": [],
+      "explanation": "",
+      "history": []
+    },
+    {
+      "provider": "gemini",
+      "case": "conditional-dirty",
+      "repeat": 2,
+      "passed": false,
+      "checks": {
+        "read_only": true,
+        "bounded": true,
+        "no_failed_operations": true,
+        "normal_stop": false,
+        "summary_measurements": true,
+        "conditional_choice": false,
+        "requested_scope": false,
+        "follow_up_after_evidence": false
+      },
+      "elapsed_seconds": 43.37,
+      "steps": 1,
+      "planning_calls": 2,
+      "tokens": 2386,
+      "models": [
+        {
+          "requested_model": "gemini-3.5-flash",
+          "served_model": "gemini-3.6-flash",
+          "tokens": 2386
+        }
+      ],
+      "provider_errors": [
+        {
+          "provider": "gemini",
+          "model": "gemini-3.5-flash",
+          "code": "HTTP_429"
+        }
+      ],
+      "planning_errors": [
+        {
+          "round": 2,
+          "code": "HTTP_429"
+        }
+      ],
+      "stop_reason": "Planning failed or timed out. Available results are retained; retry to investigate further.",
+      "unsupported": [],
+      "explanation": "Running a numeric summary on the mass column of batches.csv as the first prerequisite step of the requested conditional sequence.",
+      "history": [
+        {
+          "step": 1,
+          "round": 1,
+          "kind": "check",
+          "operation": {
+            "table": "batches.csv",
+            "kind": "summary",
+            "columns": [
+              "mass"
+            ],
+            "reference_table": null,
+            "reference_column": null,
+            "reason": "Summarize mass column values to check numerical statistics and inspect for unreadable inputs."
+          },
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "provider": "gemini",
+      "case": "ambiguous-rate",
+      "repeat": 2,
+      "passed": true,
+      "checks": {
+        "read_only": true,
+        "bounded": true,
+        "no_failed_operations": true,
+        "normal_stop": true,
+        "missing_definition_reported": true,
+        "no_substitute_calculation": true
+      },
+      "elapsed_seconds": 23.24,
+      "steps": 0,
+      "planning_calls": 1,
+      "tokens": 2458,
+      "models": [
+        {
+          "requested_model": "gemini-3.5-flash",
+          "served_model": "gemini-3.6-flash",
+          "tokens": 2458
+        }
+      ],
+      "provider_errors": [],
+      "planning_errors": [],
+      "stop_reason": "The planner selected no further supported steps. Review the measured results and any uncovered parts below.",
+      "unsupported": [
+        "Conversion rate definition missing: required qualifying events (numerator) and denominator population."
+      ],
+      "explanation": "The conversion rate cannot be calculated because the qualifying conversion events (numerator) and denominator (baseline population) have not been defined.",
+      "history": []
+    }
+  ]
+}

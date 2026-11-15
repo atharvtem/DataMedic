@@ -8,7 +8,7 @@ COSTS = {'inspect_database_schema':1, 'check_payment_coverage':1,
 SERVERS = {name: ('ops' if name in {'query_etl_pipeline_logs','check_upstream_service_events','inspect_config_deployments'} else 'database') for name in COSTS}
 
 class DeterministicPlanner:
-    def hypotheses(self):
+    def hypotheses(self, alert=None):
         return [Hypothesis(category=c,description=d).model_dump() for c,d in [
             ('MISSING_INGESTION','Payment ingestion omitted rows for the purchase window.'),
             ('SILENT_LOGIC_CORRUPTION','Payment values or mappings changed despite successful ingestion.'),

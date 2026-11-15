@@ -1,0 +1,318 @@
+{
+  "suite": "upload-live-development-v1",
+  "limitations": "Synthetic development smoke tests, not a held-out benchmark or proof of general investigation quality. Token usage is reported; monetary cost is not estimated.",
+  "passed": 4,
+  "total": 4,
+  "runs": [
+    {
+      "provider": "groq",
+      "case": "malformed-readings",
+      "passed": true,
+      "checks": {
+        "read_only": true,
+        "bounded": true,
+        "no_failed_operations": true,
+        "normal_stop": true,
+        "missing": true,
+        "invalid_number": true,
+        "histogram": true
+      },
+      "elapsed_seconds": 2.25,
+      "steps": 4,
+      "planning_calls": 2,
+      "tokens": 4510,
+      "models": [
+        {
+          "requested_model": "openai/gpt-oss-120b",
+          "served_model": "openai/gpt-oss-120b",
+          "tokens": 2047
+        },
+        {
+          "requested_model": "openai/gpt-oss-120b",
+          "served_model": "openai/gpt-oss-120b",
+          "tokens": 2463
+        }
+      ],
+      "provider_errors": [],
+      "stop_reason": "The planner selected no further supported steps. Review the measured results and any uncovered parts below.",
+      "unsupported": [],
+      "history": [
+        {
+          "step": 1,
+          "round": 1,
+          "kind": "check",
+          "operation": {
+            "table": "sensor.csv",
+            "kind": "missing",
+            "columns": [
+              "reading"
+            ],
+            "reference_table": null,
+            "reference_column": null,
+            "reason": "Identify rows where the reading value is absent."
+          },
+          "status": "completed"
+        },
+        {
+          "step": 2,
+          "round": 1,
+          "kind": "check",
+          "operation": {
+            "table": "sensor.csv",
+            "kind": "invalid_number",
+            "columns": [
+              "reading"
+            ],
+            "reference_table": null,
+            "reference_column": null,
+            "reason": "Detect readings that cannot be parsed as numbers, indicating unreadable values."
+          },
+          "status": "completed"
+        },
+        {
+          "step": 3,
+          "round": 1,
+          "kind": "check",
+          "operation": {
+            "table": "sensor.csv",
+            "kind": "summary",
+            "columns": [
+              "reading"
+            ],
+            "reference_table": null,
+            "reference_column": null,
+            "reason": "Provide basic statistics (count, distinct, etc.) for the reading column to aid interpretation."
+          },
+          "status": "completed"
+        },
+        {
+          "step": 4,
+          "round": 1,
+          "kind": "chart",
+          "operation": {
+            "table": "sensor.csv",
+            "kind": "histogram",
+            "x": "reading",
+            "y": null,
+            "aggregation": "count",
+            "normalization": "none",
+            "period": "D",
+            "start": null,
+            "end": null,
+            "color_by": null,
+            "filter_column": null,
+            "filter_operator": null,
+            "filter_value": null,
+            "filter_upper": null,
+            "reason": "Show the distribution of reading values."
+          },
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "provider": "groq",
+      "case": "chart-only",
+      "passed": true,
+      "checks": {
+        "read_only": true,
+        "bounded": true,
+        "no_failed_operations": true,
+        "normal_stop": true,
+        "no_unrequested_checks": true,
+        "category_counts": true
+      },
+      "elapsed_seconds": 4.6,
+      "steps": 1,
+      "planning_calls": 2,
+      "tokens": 3814,
+      "models": [
+        {
+          "requested_model": "openai/gpt-oss-120b",
+          "served_model": "openai/gpt-oss-120b",
+          "tokens": 1827
+        },
+        {
+          "requested_model": "openai/gpt-oss-120b",
+          "served_model": "openai/gpt-oss-120b",
+          "tokens": 1987
+        }
+      ],
+      "provider_errors": [],
+      "stop_reason": "The planner selected no further supported steps. Review the measured results and any uncovered parts below.",
+      "unsupported": [],
+      "history": [
+        {
+          "step": 1,
+          "round": 1,
+          "kind": "chart",
+          "operation": {
+            "table": "visits.csv",
+            "kind": "category",
+            "x": "zone",
+            "y": null,
+            "aggregation": "count",
+            "normalization": "none",
+            "period": "D",
+            "start": null,
+            "end": null,
+            "color_by": null,
+            "filter_column": null,
+            "filter_operator": null,
+            "filter_value": null,
+            "filter_upper": null,
+            "reason": "Show count of rows for each zone."
+          },
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "provider": "gemini",
+      "case": "malformed-readings",
+      "passed": true,
+      "checks": {
+        "read_only": true,
+        "bounded": true,
+        "no_failed_operations": true,
+        "normal_stop": true,
+        "missing": true,
+        "invalid_number": true,
+        "histogram": true
+      },
+      "elapsed_seconds": 8.15,
+      "steps": 3,
+      "planning_calls": 2,
+      "tokens": 5289,
+      "models": [
+        {
+          "requested_model": "gemini-3.5-flash",
+          "served_model": "gemini-3.6-flash",
+          "tokens": 2755
+        },
+        {
+          "requested_model": "gemini-3.5-flash",
+          "served_model": "gemini-3.6-flash",
+          "tokens": 2534
+        }
+      ],
+      "provider_errors": [],
+      "stop_reason": "The planner selected no further supported steps. Review the measured results and any uncovered parts below.",
+      "unsupported": [],
+      "history": [
+        {
+          "step": 1,
+          "round": 1,
+          "kind": "check",
+          "operation": {
+            "table": "sensor.csv",
+            "kind": "missing",
+            "columns": [
+              "reading"
+            ],
+            "reference_table": null,
+            "reference_column": null,
+            "reason": "Identify missing entries in the reading column."
+          },
+          "status": "completed"
+        },
+        {
+          "step": 2,
+          "round": 1,
+          "kind": "check",
+          "operation": {
+            "table": "sensor.csv",
+            "kind": "invalid_number",
+            "columns": [
+              "reading"
+            ],
+            "reference_table": null,
+            "reference_column": null,
+            "reason": "Identify text or unparseable numeric values in the reading column."
+          },
+          "status": "completed"
+        },
+        {
+          "step": 3,
+          "round": 1,
+          "kind": "chart",
+          "operation": {
+            "table": "sensor.csv",
+            "kind": "histogram",
+            "x": "reading",
+            "y": null,
+            "aggregation": "count",
+            "normalization": "none",
+            "period": "D",
+            "start": null,
+            "end": null,
+            "color_by": null,
+            "filter_column": null,
+            "filter_operator": null,
+            "filter_value": null,
+            "filter_upper": null,
+            "reason": "Show the distribution of numeric readings."
+          },
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "provider": "gemini",
+      "case": "chart-only",
+      "passed": true,
+      "checks": {
+        "read_only": true,
+        "bounded": true,
+        "no_failed_operations": true,
+        "normal_stop": true,
+        "no_unrequested_checks": true,
+        "category_counts": true
+      },
+      "elapsed_seconds": 5.17,
+      "steps": 1,
+      "planning_calls": 2,
+      "tokens": 4203,
+      "models": [
+        {
+          "requested_model": "gemini-3.5-flash",
+          "served_model": "gemini-3.6-flash",
+          "tokens": 2042
+        },
+        {
+          "requested_model": "gemini-3.5-flash",
+          "served_model": "gemini-3.6-flash",
+          "tokens": 2161
+        }
+      ],
+      "provider_errors": [],
+      "stop_reason": "The planner selected no further supported steps. Review the measured results and any uncovered parts below.",
+      "unsupported": [],
+      "history": [
+        {
+          "step": 1,
+          "round": 1,
+          "kind": "chart",
+          "operation": {
+            "table": "visits.csv",
+            "kind": "category",
+            "x": "zone",
+            "y": null,
+            "aggregation": "count",
+            "normalization": "none",
+            "period": "D",
+            "start": null,
+            "end": null,
+            "color_by": null,
+            "filter_column": null,
+            "filter_operator": null,
+            "filter_value": null,
+            "filter_upper": null,
+            "reason": "Count rows by zone in visits.csv."
+          },
+          "status": "completed"
+        }
+      ]
+    }
+  ]
+}

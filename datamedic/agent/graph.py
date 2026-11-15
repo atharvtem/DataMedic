@@ -1,5 +1,7 @@
 """Deterministic graph controls enforce budget, availability and termination."""
 import time
+import inspect
+import asyncio
 from datetime import date, timedelta
 from decimal import Decimal
 from pydantic import ValidationError
@@ -25,9 +27,10 @@ def assess(state):
                 and Decimal(target['paid_orders'])/Decimal(target['orders']) <
                 sum(Decimal(r['paid_orders'])/Decimal(r['orders']) for r in prior)/7)
         if drop and int(target['missing_payment_orders'])>0:
-            hypotheses[0].status='SUPPORTED'
-            hypotheses[0].rationale='Coverage fell against all seven reference days; ingestion cause still needs corroboration.'
-            hypotheses[0].evidence=[good['check_payment_coverage']['id']]
+            missing = next(h for h in hypotheses if h.category=='MISSING_INGESTION')
+            missing.status='SUPPORTED'
+            missing.rationale='Coverage fell against all seven reference days; ingestion cause still needs corroboration.'
+            missing.evidence=[good['check_payment_coverage']['id']]
         def matching(tool):
             records = good[tool]['result']['records']
             return [r for r in records if r['details'].get('window_start')==day+'T00:00:00'
@@ -60,23 +63,26 @@ def assess(state):
 
 def build_graph(transport, planner=None):
     planner = planner or DeterministicPlanner()
-    def initialize(state):
+    async def initialize(state):
         try:
-            hypotheses = [Hypothesis.model_validate(h).model_dump() for h in planner.hypotheses()]
-            if len(hypotheses) != 4:
+            raw = planner.hypotheses(state['alert'])
+            raw = await asyncio.wait_for(raw, timeout=60) if inspect.isawaitable(raw) else raw
+            hypotheses = [Hypothesis.model_validate(h).model_dump() for h in raw]
+            if len(hypotheses) != 4 or {h['category'] for h in hypotheses} != {'MISSING_INGESTION','SILENT_LOGIC_CORRUPTION','UPSTREAM_SERVICE_OUTAGE','DUPLICATE_RECORDS'}:
                 raise ValueError('Expected four hypotheses')
             return {'hypotheses':hypotheses}
-        except (ValidationError, ValueError, TypeError):
+        except (ValidationError, ValueError, TypeError, RuntimeError, TimeoutError):
             return {'hypotheses':[], 'stop':'INVALID_PLANNER_OUTPUT'}
-    def plan(state):
+    async def plan(state):
         if state['stop']:
             return {'request':None}
         try:
             raw = planner.next(state)
+            raw = await asyncio.wait_for(raw, timeout=60) if inspect.isawaitable(raw) else raw
             if raw is None:
                 return {'request':None,'stop':'NO_USEFUL_TOOL'}
             request = ToolRequest.model_validate(raw)
-        except (ValidationError, ValueError, TypeError):
+        except (ValidationError, ValueError, TypeError, RuntimeError, TimeoutError):
             return {'request':None,'stop':'INVALID_PLANNER_OUTPUT'}
         if request.tool not in COSTS:
             return {'request':None,'stop':'TOOL_UNAVAILABLE'}
@@ -107,8 +113,9 @@ def build_graph(transport, planner=None):
         report=Report(verdict='MISSING_INGESTION' if supported else 'ESCALATE_AMBIGUOUS',
             reason=reason if supported else state['stop']+': '+reason,evidence=refs,
             next_manual_check='Reconcile source payment keys and values against the import batch; replay missing rows and confirm coverage. Payment-value loss is not established from surviving records alone.',
-            points_spent=state['alert']['budget']-state['remaining'],points_remaining=state['remaining'])
-        return {'report':report.model_dump(),'hypotheses':hypotheses}
+            points_spent=state['alert']['budget']-state['remaining'],points_remaining=state['remaining'],
+            planner=getattr(planner,'name','deterministic-olist-v1'), model_tokens=getattr(planner,'tokens',0))
+        return {'report':{**report.model_dump(), 'model_calls':getattr(planner,'calls',[]), 'provider_errors':getattr(planner,'errors',[])},'hypotheses':hypotheses}
     graph=StateGraph(State)
     for name,node in [('initialize',initialize),('plan',plan),('call',call),('evaluate',evaluate),('finish',finish)]:
         graph.add_node(name,node)
@@ -119,6 +126,12 @@ def build_graph(transport, planner=None):
     graph.add_edge('finish',END)
     return graph.compile()
 
-async def investigate(alert: Alert, transport, planner=None):
-    return await build_graph(transport,planner).ainvoke(dict(alert=alert.model_dump(mode='json'),remaining=alert.budget,
-        hypotheses=[],history=[],request=None,stop='',report={}),config={'recursion_limit':100})
+async def investigate(alert: Alert, transport, planner=None, on_update=None):
+    initial=dict(alert=alert.model_dump(mode='json'),remaining=alert.budget,
+        hypotheses=[],history=[],request=None,stop='',report={})
+    last=initial
+    async for state in build_graph(transport,planner).astream(initial,config={'recursion_limit':100},stream_mode='values'):
+        last=state
+        if on_update is not None:
+            on_update(state)
+    return last

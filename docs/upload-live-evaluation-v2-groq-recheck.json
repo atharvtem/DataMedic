@@ -1,0 +1,291 @@
+{
+  "suite": "upload-live-development-v2",
+  "limitations": "Synthetic development smoke tests, not a held-out benchmark or proof of general investigation quality. Token usage is reported; monetary cost is not estimated.",
+  "passed": 4,
+  "total": 4,
+  "runs": [
+    {
+      "provider": "groq",
+      "case": "malformed-readings",
+      "passed": true,
+      "checks": {
+        "read_only": true,
+        "bounded": true,
+        "no_failed_operations": true,
+        "normal_stop": true,
+        "missing": true,
+        "invalid_number": true,
+        "histogram": true
+      },
+      "elapsed_seconds": 3.88,
+      "steps": 5,
+      "planning_calls": 3,
+      "tokens": 7590,
+      "models": [
+        {
+          "requested_model": "openai/gpt-oss-120b",
+          "served_model": "openai/gpt-oss-120b",
+          "tokens": 2099
+        },
+        {
+          "requested_model": "openai/gpt-oss-120b",
+          "served_model": "openai/gpt-oss-120b",
+          "tokens": 2661
+        },
+        {
+          "requested_model": "openai/gpt-oss-120b",
+          "served_model": "openai/gpt-oss-120b",
+          "tokens": 2830
+        }
+      ],
+      "provider_errors": [],
+      "planning_errors": [],
+      "stop_reason": "The planner selected no further supported steps. Review the measured results and any uncovered parts below.",
+      "unsupported": [],
+      "explanation": "Create checks to identify missing values and unreadable (non\u2011numeric) entries in the reading column, then produce a histogram of the reading values.",
+      "history": [
+        {
+          "step": 1,
+          "round": 1,
+          "kind": "check",
+          "operation": {
+            "table": "sensor.csv",
+            "kind": "missing",
+            "columns": [
+              "reading"
+            ],
+            "reference_table": null,
+            "reference_column": null,
+            "reason": "Detect rows where the reading is absent."
+          },
+          "status": "completed"
+        },
+        {
+          "step": 2,
+          "round": 1,
+          "kind": "check",
+          "operation": {
+            "table": "sensor.csv",
+            "kind": "invalid_number",
+            "columns": [
+              "reading"
+            ],
+            "reference_table": null,
+            "reference_column": null,
+            "reason": "Find readings that cannot be parsed as numbers."
+          },
+          "status": "completed"
+        },
+        {
+          "step": 3,
+          "round": 1,
+          "kind": "chart",
+          "operation": {
+            "table": "sensor.csv",
+            "kind": "histogram",
+            "x": "reading",
+            "y": null,
+            "aggregation": "count",
+            "normalization": "none",
+            "period": "D",
+            "start": null,
+            "end": null,
+            "color_by": null,
+            "filter_column": null,
+            "filter_operator": null,
+            "filter_value": null,
+            "filter_upper": null,
+            "reason": "Show the distribution of reading values."
+          },
+          "status": "completed"
+        },
+        {
+          "step": 4,
+          "round": 2,
+          "kind": "check",
+          "operation": {
+            "table": "sensor.csv",
+            "kind": "outliers",
+            "columns": [
+              "reading"
+            ],
+            "reference_table": null,
+            "reference_column": null,
+            "reason": "Identify extreme numeric reading values that may indicate measurement errors."
+          },
+          "status": "completed"
+        },
+        {
+          "step": 5,
+          "round": 2,
+          "kind": "check",
+          "operation": {
+            "table": "sensor.csv",
+            "kind": "summary",
+            "columns": [
+              "reading"
+            ],
+            "reference_table": null,
+            "reference_column": null,
+            "reason": "Provide basic statistics (count, mean, median, min, max) for the reading values to understand their distribution."
+          },
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "provider": "groq",
+      "case": "conditional-clean",
+      "passed": true,
+      "checks": {
+        "read_only": true,
+        "bounded": true,
+        "no_failed_operations": true,
+        "normal_stop": true,
+        "summary_measurements": true,
+        "conditional_choice": true,
+        "requested_scope": true
+      },
+      "elapsed_seconds": 19.18,
+      "steps": 1,
+      "planning_calls": 2,
+      "tokens": 4075,
+      "models": [
+        {
+          "requested_model": "openai/gpt-oss-120b",
+          "served_model": "openai/gpt-oss-120b",
+          "tokens": 1965
+        },
+        {
+          "requested_model": "openai/gpt-oss-120b",
+          "served_model": "openai/gpt-oss-120b",
+          "tokens": 2110
+        }
+      ],
+      "provider_errors": [],
+      "planning_errors": [],
+      "stop_reason": "The planner selected no further supported steps. Review the measured results and any uncovered parts below.",
+      "unsupported": [],
+      "explanation": "Run a numeric summary check on the 'mass' column of batches.csv to see the distribution of values. If the summary reveals unreadable numbers, a subsequent invalid_number check can be added to locate those rows. No charts are required.",
+      "history": [
+        {
+          "step": 1,
+          "round": 1,
+          "kind": "check",
+          "operation": {
+            "table": "batches.csv",
+            "kind": "summary",
+            "columns": [
+              "mass"
+            ],
+            "reference_table": null,
+            "reference_column": null,
+            "reason": "Provide numeric summary of mass before deciding on further validation."
+          },
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "provider": "groq",
+      "case": "reference-coverage",
+      "passed": true,
+      "checks": {
+        "read_only": true,
+        "bounded": true,
+        "no_failed_operations": true,
+        "normal_stop": true,
+        "missing_reference_count": true,
+        "separate_blank_count": true,
+        "reference_target": true
+      },
+      "elapsed_seconds": 32.77,
+      "steps": 2,
+      "planning_calls": 2,
+      "tokens": 4271,
+      "models": [
+        {
+          "requested_model": "openai/gpt-oss-120b",
+          "served_model": "openai/gpt-oss-120b",
+          "tokens": 2060
+        },
+        {
+          "requested_model": "openai/gpt-oss-120b",
+          "served_model": "openai/gpt-oss-120b",
+          "tokens": 2211
+        }
+      ],
+      "provider_errors": [],
+      "planning_errors": [],
+      "stop_reason": "The planner selected no further supported steps. Review the measured results and any uncovered parts below.",
+      "unsupported": [],
+      "explanation": "Create checks to identify shipment part values that do not exist in the catalog and to flag blank part entries in the shipments table.",
+      "history": [
+        {
+          "step": 1,
+          "round": 1,
+          "kind": "check",
+          "operation": {
+            "table": "shipments.csv",
+            "kind": "missing_reference",
+            "columns": [
+              "part"
+            ],
+            "reference_table": "catalog.csv",
+            "reference_column": "code",
+            "reason": "Find shipment part values that are not present in the catalog codes."
+          },
+          "status": "completed"
+        },
+        {
+          "step": 2,
+          "round": 1,
+          "kind": "check",
+          "operation": {
+            "table": "shipments.csv",
+            "kind": "missing",
+            "columns": [
+              "part"
+            ],
+            "reference_table": null,
+            "reference_column": null,
+            "reason": "Detect rows where the part column is blank or null in shipments."
+          },
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "provider": "groq",
+      "case": "ambiguous-rate",
+      "passed": true,
+      "checks": {
+        "read_only": true,
+        "bounded": true,
+        "no_failed_operations": true,
+        "normal_stop": true,
+        "missing_definition_reported": true,
+        "no_substitute_calculation": true
+      },
+      "elapsed_seconds": 10.11,
+      "steps": 0,
+      "planning_calls": 1,
+      "tokens": 1935,
+      "models": [
+        {
+          "requested_model": "openai/gpt-oss-120b",
+          "served_model": "openai/gpt-oss-120b",
+          "tokens": 1935
+        }
+      ],
+      "provider_errors": [],
+      "planning_errors": [],
+      "stop_reason": "The planner selected no further supported steps. Review the measured results and any uncovered parts below.",
+      "unsupported": [
+        "Missing definition of qualifying conversion events and denominator for the conversion rate calculation."
+      ],
+      "explanation": "A conversion rate requires a clearly defined numerator (the qualifying events, e.g., number of orders) and a denominator (the total relevant events, e.g., visitors, sessions, or unique users). The request does not specify which events should be counted as conversions nor which total should be used as the base, so the metric cannot be calculated.",
+      "history": []
+    }
+  ]
+}

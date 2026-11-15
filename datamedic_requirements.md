@@ -6,6 +6,16 @@
 
 ---
 
+## Updated product direction (2026-11-14)
+
+Users upload their own tables, inspect discovered columns, choose suggested checks
+or describe a custom check. The agent selects relevant tables, columns, time
+windows and charts, and explains measured results in simple language. It proposes
+fixes and ends with “What should you do next?”. User datasets must never be
+modified, even as a proposed future automation. Downloads contain findings and
+suggestions, not repaired datasets. The Olist scenario is a development example;
+claims of broad support must state supported formats and operations.
+
 ## 1. Executive Summary & Resume Positioning
 
 ### 1.1 The Problem

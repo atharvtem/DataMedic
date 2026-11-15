@@ -70,9 +70,16 @@ services:
     networks: [backend]
   datamedic-app:
     build: .
+    command: [python, -m, streamlit, run, datamedic/ui.py, --server.address=0.0.0.0, --server.port=8501, --browser.gatherUsageStats=false]
+    ports:
+      - "127.0.0.1:8501:8501"
     environment:
       MCP_DATABASE_URL: http://mcp-postgres:8001/mcp
       MCP_OPS_URL: http://mcp-ops:8002/mcp
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      GROQ_MODEL: ${GROQ_MODEL:-openai/gpt-oss-120b}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.5-flash}
     depends_on:
       mcp-postgres:
         condition: service_healthy
@@ -83,8 +90,9 @@ services:
       interval: 30s
       timeout: 8s
       retries: 3
-    networks: [backend]
+    networks: [backend, egress]
 networks:
+  egress: {}
   backend:
     internal: true
 volumes:

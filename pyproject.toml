@@ -10,6 +10,7 @@ dependencies = [
     "langgraph>=1,<2",
     "psycopg[binary]>=3.2,<4",
     "sqlglot>=28,<29",
+    "streamlit>=1.50,<2",
 ]
 
 [dependency-groups]
